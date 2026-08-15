@@ -49,6 +49,11 @@ body {
   align-items: center;
   justify-content: center;
   padding: 24px 16px;
+  background-image: url('/bg-auth.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 .auth-card {

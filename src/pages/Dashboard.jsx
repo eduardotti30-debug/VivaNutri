@@ -4,7 +4,18 @@ import { LogOut, Users, Calendar, FileText, Activity, ShieldCheck } from 'lucide
 
 export function Dashboard({ user, onLogout }) {
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-gradient)', display: 'flex', flexDirection: 'column' }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundImage: "url('/bg-dashboard.svg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
       {/* Top Navbar */}
       <header
         style={{

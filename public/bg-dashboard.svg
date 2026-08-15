@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <linearGradient id="dash-sky" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="50%" stop-color="#f0fdfa"/>
+      <stop offset="100%" stop-color="#f0f9ff"/>
+    </linearGradient>
+    
+    <linearGradient id="dash-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d9488" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0.06"/>
+    </linearGradient>
+    
+    <filter id="dash-blur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="90" />
+    </filter>
+  </defs>
+
+  <rect width="100%" height="100%" fill="url(#dash-sky)"/>
+
+  <circle cx="100" cy="150" r="350" fill="url(#dash-accent)" filter="url(#dash-blur)"/>
+  <circle cx="1850" cy="200" r="300" fill="url(#dash-accent)" filter="url(#dash-blur)"/>
+  <circle cx="960" cy="950" r="450" fill="url(#dash-accent)" filter="url(#dash-blur)"/>
+
+  <g opacity="0.08" stroke="#0d9488" stroke-width="1.5" fill="none">
+    <path d="M 100,0 L 100,1080 M 300,0 L 300,1080 M 500,0 L 500,1080 M 700,0 L 700,1080 M 900,0 L 900,1080 M 1100,0 L 1100,1080 M 1300,0 L 1300,1080 M 1500,0 L 1500,1080 M 1700,0 L 1700,1080" stroke-dasharray="4 12"/>
+    <path d="M 1750,750 C 1710,700 1780,630 1820,670 C 1860,630 1930,700 1890,750 C 1870,810 1770,810 1750,750 Z" fill="#0d9488"/>
+  </g>
+</svg>
