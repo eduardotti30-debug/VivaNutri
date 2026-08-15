@@ -101,6 +101,35 @@ export function getCurrentSession() {
 }
 
 /**
+ * Solicita o envio de recuperação de senha via Neon Auth / Better Auth
+ */
+export async function sendPasswordResetEmail({ email, redirectTo }) {
+  try {
+    const res = await fetch(`${NEON_AUTH_URL}/forget-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email,
+        redirectTo: redirectTo || window.location.origin
+      })
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data?.message || data?.error || 'Erro ao solicitar recuperação de senha.');
+    }
+
+    return { success: true, message: data?.message || 'E-mail de recuperação enviado com sucesso!' };
+  } catch (err) {
+    console.error('Erro na recuperação de senha via Neon Auth:', err);
+    throw err;
+  }
+}
+
+/**
  * Encerra a sessão do usuário
  */
 export function logoutNutricionista() {

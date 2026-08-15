@@ -3,7 +3,7 @@ import { Mail, Lock, Eye, EyeOff, AlertCircle, ArrowRight } from 'lucide-react';
 import { Logo } from '../components/Logo';
 import { loginNutricionista } from '../services/neonAuth';
 
-export function Login({ onSwitchToRegister, onLoginSuccess }) {
+export function Login({ onSwitchToRegister, onSwitchToForgotPassword, onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -66,7 +66,16 @@ export function Login({ onSwitchToRegister, onLoginSuccess }) {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Senha</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label className="form-label" style={{ marginBottom: 0 }}>Senha</label>
+              <span
+                className="auth-link"
+                onClick={onSwitchToForgotPassword}
+                style={{ fontSize: '0.8rem', fontWeight: 600 }}
+              >
+                Esqueceu a senha?
+              </span>
+            </div>
             <div className="input-wrapper">
               <Lock className="input-icon" size={18} />
               <input
