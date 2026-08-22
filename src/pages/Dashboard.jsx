@@ -11,7 +11,11 @@ import {
   Sparkles,
   CalendarDays,
   UserCheck,
-  Plus
+  Plus,
+  MessageCircle,
+  TrendingUp,
+  Activity,
+  HeartPulse
 } from 'lucide-react';
 import { getDashboardData } from '../services/neonDb';
 
@@ -45,6 +49,15 @@ export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpe
     fetchStats();
   }, [user?.id]);
 
+  // Saudação dinâmica com base no horário
+  const currentHour = new Date().getHours();
+  let greeting = 'Bom dia';
+  if (currentHour >= 12 && currentHour < 18) {
+    greeting = 'Boa tarde';
+  } else if (currentHour >= 18 || currentHour < 5) {
+    greeting = 'Boa noite';
+  }
+
   // Formatação amigável da data atual
   const todayFormatted = new Intl.DateTimeFormat('pt-BR', {
     weekday: 'long',
@@ -57,18 +70,18 @@ export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpe
 
   return (
     <div className="dashboard-content">
-      {/* Welcome Banner */}
+      {/* Welcome Hero Banner */}
       <div className="welcome-banner">
         <div className="welcome-text-side">
           <div className="welcome-badge">
             <Sparkles size={14} />
-            <span>Painel Nutricional em Tempo Real</span>
+            <span>Gestão Inteligente & Nutrição Clínica</span>
           </div>
           <h1 className="welcome-title">
-            Olá, {user?.nome ? user.nome.split(' ')[0] : 'Nutricionista'}! 👋
+            {greeting}, {user?.nome ? user.nome.split(' ')[0] : 'Nutricionista'}! 👋
           </h1>
           <p className="welcome-subtitle">
-            {todayCapitalized} • Acompanhe o fluxo de pacientes e consultas em tempo real.
+            {todayCapitalized} • Seus prontuários e métricas em tempo real no Neon.
           </p>
         </div>
 
@@ -76,10 +89,10 @@ export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpe
           <button 
             onClick={fetchStats} 
             className="btn-glass"
-            title="Atualizar métricas do Neon"
+            title="Atualizar métricas do banco"
           >
             <RefreshCw size={16} className={loading ? 'spinning-icon' : ''} />
-            <span>{loading ? 'Atualizando...' : 'Atualizar'}</span>
+            <span>{loading ? 'Atualizando...' : 'Sincronizar'}</span>
           </button>
           <button 
             onClick={onOpenNovoPaciente} 
@@ -104,17 +117,20 @@ export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpe
         
         {/* CARD 1 — Total de pacientes ativos */}
         <div 
-          className="metric-card metric-card-blue"
+          className="metric-card"
           onClick={onNavigateToPacientes}
           role="button"
           tabIndex={0}
-          title="Clique para ver a lista completa de pacientes"
+          title="Ver todos os pacientes cadastrados"
         >
           <div className="metric-header">
             <div className="metric-icon-box bg-blue-light">
               <Users size={26} color="var(--primary)" />
             </div>
-            <span className="metric-tag">Ativos</span>
+            <span className="metric-tag">
+              <TrendingUp size={12} style={{ display: 'inline', marginRight: '4px' }} />
+              Ativos
+            </span>
           </div>
           <div className="metric-body">
             <span className="metric-label">Total de pacientes ativos</span>
@@ -128,13 +144,13 @@ export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpe
             </div>
           </div>
           <div className="metric-footer">
-            <UserCheck size={14} color="var(--primary)" />
+            <UserCheck size={15} color="var(--primary)" />
             <span>Cadastrados no seu perfil</span>
           </div>
         </div>
 
         {/* CARD 2 — Consultas da semana */}
-        <div className="metric-card metric-card-teal">
+        <div className="metric-card">
           <div className="metric-header">
             <div className="metric-icon-box bg-teal-light">
               <CalendarDays size={26} color="var(--accent)" />
@@ -150,21 +166,21 @@ export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpe
             </div>
           </div>
           <div className="metric-footer">
-            <Clock size={14} color="var(--accent)" />
-            <span>Agendadas / realizadas nesta semana</span>
+            <Clock size={15} color="var(--accent)" />
+            <span>Atendimentos agendados ou concluídos</span>
           </div>
         </div>
 
         {/* Status resumo card auxiliar de status Neon */}
-        <div className="metric-card metric-card-status">
+        <div className="metric-card">
           <div className="metric-header">
             <div className="metric-icon-box bg-green-light">
-              <CheckCircle2 size={26} color="var(--success)" />
+              <HeartPulse size={26} color="var(--success)" />
             </div>
-            <span className="metric-tag tag-green">Neon PostgreSQL</span>
+            <span className="metric-tag tag-green">Neon RLS</span>
           </div>
           <div className="metric-body">
-            <span className="metric-label">Sincronização Neon</span>
+            <span className="metric-label">Banco de Dados Neon</span>
             <div className="metric-value-row">
               <h3 className="metric-status-title">100% Conectado</h3>
             </div>
@@ -173,8 +189,8 @@ export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpe
             <div className="status-dot" />
             <span>
               {lastUpdated 
-                ? `Última sincronização às ${lastUpdated.toLocaleTimeString('pt-BR')}`
-                : 'Conexão ativa com RLS'}
+                ? `Atualizado às ${lastUpdated.toLocaleTimeString('pt-BR')}`
+                : 'Conexão em tempo real'}
             </span>
           </div>
         </div>
@@ -185,11 +201,11 @@ export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpe
       <div className="dashboard-section-container">
         <div className="section-header">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <h2 className="section-title">Pacientes sem retorno</h2>
               {stats.pacientesSemRetorno.length > 0 && (
                 <span className="badge-warning-count">
-                  {stats.pacientesSemRetorno.length} pendentes
+                  {stats.pacientesSemRetorno.length} necessitam atenção
                 </span>
               )}
             </div>
@@ -201,8 +217,8 @@ export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpe
 
         <div className="card-sem-retorno-container">
           {loading ? (
-            <div className="loading-box" style={{ padding: '40px 20px' }}>
-              <div className="spinner" style={{ borderTopColor: 'var(--primary)', width: '32px', height: '32px' }} />
+            <div className="loading-box" style={{ padding: '40px 20px', textAlign: 'center' }}>
+              <div className="spinner" style={{ borderTopColor: 'var(--primary)', width: '32px', height: '32px', margin: '0 auto' }} />
               <p style={{ marginTop: '12px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
                 Verificando consultas no banco Neon...
               </p>
@@ -235,15 +251,29 @@ export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpe
                           <span className="meta-text">
                             <strong>Última consulta:</strong> {ultData}
                           </span>
-                          <span className="meta-divider">•</span>
+                          <span style={{ color: '#cbd5e1' }}>•</span>
                           <span className="meta-dias-alert">
-                            {dias} dias sem retorno
+                            {dias} dias sem consulta
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="paciente-item-right">
+                    <div className="paciente-item-right" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      {paciente.whatsapp && (
+                        <a
+                          href={`https://wa.me/55${paciente.whatsapp.replace(/\D/g, '')}?text=Olá%20${encodeURIComponent(paciente.nome)},%20tudo%20bem?%20Passando%20para%20acompanhar%20sua%20evolução%20nutricional.`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-ver-perfil"
+                          style={{ borderColor: '#86efac', color: '#059669', background: '#f0fdf4' }}
+                          onClick={(e) => e.stopPropagation()}
+                          title="Chamar no WhatsApp"
+                        >
+                          <MessageCircle size={15} />
+                          <span>WhatsApp</span>
+                        </a>
+                      )}
                       <button 
                         className="btn-ver-perfil"
                         onClick={(e) => {
@@ -251,7 +281,7 @@ export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpe
                           onSelectPaciente(paciente.id);
                         }}
                       >
-                        <span>Ver Perfil</span>
+                        <span>Prontuário</span>
                         <ChevronRight size={16} />
                       </button>
                     </div>
@@ -263,11 +293,11 @@ export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpe
             /* Mensagem obrigatória caso não haja pacientes sem retorno */
             <div className="sem-retorno-empty-state">
               <div className="empty-check-icon">
-                <CheckCircle2 size={36} color="var(--success)" />
+                <CheckCircle2 size={36} color="var(--accent)" />
               </div>
               <h3 className="empty-check-title">Nenhum paciente sem retorno no momento</h3>
               <p className="empty-check-desc">
-                Excelente trabalho! Todos os seus pacientes ativos estão em acompanhamento regular ou com consultas agendadas.
+                Excelente! Todos os seus pacientes ativos estão em acompanhamento regular com retornos agendados.
               </p>
             </div>
           )}
