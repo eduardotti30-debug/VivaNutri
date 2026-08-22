@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="bgGradFit" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ecfeff" />
+      <stop offset="50%" stop-color="#f0fdf4" />
+      <stop offset="100%" stop-color="#eff6ff" />
+    </linearGradient>
+
+    <linearGradient id="energyGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.35" />
+    </linearGradient>
+
+    <linearGradient id="glowCircle" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#34d399" stop-opacity="0" />
+    </linearGradient>
+
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="50" />
+    </filter>
+  </defs>
+
+  <!-- Clean Base -->
+  <rect width="1920" height="1080" fill="url(#bgGradFit)" />
+
+  <!-- Luminous Ambient Energy Centers -->
+  <circle cx="960" cy="540" r="500" fill="url(#glowCircle)" filter="url(#softGlow)" />
+  <circle cx="250" cy="800" r="350" fill="#a7f3d0" opacity="0.25" filter="url(#softGlow)" />
+  <circle cx="1700" cy="250" r="350" fill="#bae6fd" opacity="0.3" filter="url(#softGlow)" />
+
+  <!-- Smooth Geometric Landscape Waves -->
+  <path d="M-50 780 C400 680, 800 860, 1250 720 C1600 620, 1800 750, 1980 700 L1980 1150 L-50 1150 Z" fill="#0284c7" opacity="0.06" />
+  <path d="M-50 860 C350 760, 850 940, 1350 800 C1680 720, 1880 840, 1980 810 L1980 1150 L-50 1150 Z" fill="#10b981" opacity="0.08" />
+
+  <!-- Sports Group: Yoga Warrior / Stretching & Functional Fitness Athlete -->
+  <!-- Figure 1: Yoga Warrior Pose (Balance, Flexibility, Health) -->
+  <g transform="translate(1320, 440) scale(0.9)" fill="url(#energyGrad)">
+    <circle cx="120" cy="40" r="22" />
+    <!-- Torso -->
+    <path d="M112 65 C125 65, 130 80, 126 130 L110 132 C105 95, 105 75, 112 65 Z" />
+    <!-- Extended Arms in Warrior Pose -->
+    <path d="M120 78 L210 78" stroke="url(#energyGrad)" stroke-width="16" stroke-linecap="round" fill="none" />
+    <path d="M110 78 L25 80" stroke="url(#energyGrad)" stroke-width="16" stroke-linecap="round" fill="none" />
+    <!-- Lunge Legs -->
+    <path d="M124 128 L180 180 L230 260" stroke="url(#energyGrad)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <path d="M110 128 L50 190 L10 260" stroke="url(#energyGrad)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  </g>
+
+  <!-- Figure 2: Cyclist / Cardio Fitness (Movement & Speed) -->
+  <g transform="translate(180, 480) scale(0.85)" fill="url(#energyGrad)" opacity="0.75">
+    <!-- Cyclist head -->
+    <circle cx="150" cy="50" r="20" />
+    <path d="M140 70 L110 125 L135 130 L160 85 Z" />
+    <!-- Arms holding handlebars -->
+    <path d="M145 80 L195 95 L200 120" stroke="url(#energyGrad)" stroke-width="14" stroke-linecap="round" fill="none" />
+    <!-- Cycling legs -->
+    <path d="M115 125 L100 180 L140 220" stroke="url(#energyGrad)" stroke-width="16" stroke-linecap="round" fill="none" />
+    <path d="M125 125 L160 160 L140 210" stroke="url(#energyGrad)" stroke-width="16" stroke-linecap="round" fill="none" />
+    <!-- Stylized Bicycle Wheels -->
+    <circle cx="80" cy="220" r="50" stroke="url(#energyGrad)" stroke-width="8" fill="none" opacity="0.5" />
+    <circle cx="240" cy="220" r="50" stroke="url(#energyGrad)" stroke-width="8" fill="none" opacity="0.5" />
+    <path d="M80 220 L135 220 L200 120 L160 220 L110 125 L80 220" stroke="url(#energyGrad)" stroke-width="8" fill="none" opacity="0.5" />
+  </g>
+
+  <!-- Figure 3: Jumping High / Celebrate Vitality (Center Background) -->
+  <g transform="translate(880, 360) scale(0.8)" fill="url(#energyGrad)" opacity="0.5">
+    <circle cx="100" cy="30" r="20" />
+    <path d="M92 55 C108 55, 115 70, 108 120 L88 120 C85 85, 85 65, 92 55 Z" />
+    <!-- Arms raised in celebration of vitality -->
+    <path d="M104 65 L145 20 L170 0" stroke="url(#energyGrad)" stroke-width="14" stroke-linecap="round" fill="none" />
+    <path d="M90 65 L50 20 L25 0" stroke="url(#energyGrad)" stroke-width="14" stroke-linecap="round" fill="none" />
+    <!-- Jumping legs -->
+    <path d="M104 118 L135 170 L150 220" stroke="url(#energyGrad)" stroke-width="16" stroke-linecap="round" fill="none" />
+    <path d="M90 118 L60 170 L40 215" stroke="url(#energyGrad)" stroke-width="16" stroke-linecap="round" fill="none" />
+  </g>
+
+  <!-- Abstract Heartbeat & Nutrition Rings -->
+  <circle cx="960" cy="540" r="280" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="10 15" fill="none" opacity="0.2" />
+  <circle cx="960" cy="540" r="380" stroke="#10b981" stroke-width="2" stroke-dasharray="16 20" fill="none" opacity="0.2" />
+</svg>
