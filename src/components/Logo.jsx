@@ -13,48 +13,58 @@ export function Logo({ size = 'medium', showTagline = false }) {
           viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          style={{ filter: 'drop-shadow(0px 4px 10px rgba(13, 148, 136, 0.25))' }}
+          style={{ filter: 'drop-shadow(0px 4px 10px rgba(2, 132, 199, 0.25))' }}
         >
           <defs>
-            <linearGradient id="vivaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="vivaBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#0284c7" />
-              <stop offset="100%" stopColor="#0d9488" />
+              <stop offset="100%" stopColor="#059669" />
             </linearGradient>
-            <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="vivaLeafGrad" x1="0%" y1="100%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#34d399" />
               <stop offset="100%" stopColor="#10b981" />
             </linearGradient>
           </defs>
-          
-          {/* Main shield/drop shape representing vitality */}
+
+          {/* Squircle container */}
+          <rect width="100" height="100" rx="24" fill="url(#vivaBgGrad)" />
+
+          {/* Nutrition Leaf */}
           <path
-            d="M50 8C28 24 15 45 15 62C15 81.3 30.7 92 50 92C69.3 92 85 81.3 85 62C85 45 72 24 50 8Z"
-            fill="url(#vivaGrad)"
+            d="M50 24 C50 16 59 13 67 14 C68 22 65 30 57 30 C53 30 50 27 50 24 Z"
+            fill="url(#vivaLeafGrad)"
           />
-          
-          {/* Internal leaf shape representing nutrition & health */}
           <path
-            d="M50 25C50 25 65 42 65 58C65 67 58 74 50 74C42 74 35 67 35 58C35 42 50 25 50 25Z"
+            d="M50 25 Q48 20 46 17"
+            stroke="#ffffff"
+            strokeWidth="2"
+            strokeLinecap="round"
+            fill="none"
+          />
+
+          {/* Health Heart Shape */}
+          <path
+            d="M50 35 
+               C46 29 31 28 24 36 
+               C16 45 16 59 26 72 
+               C34 82 44 88 50 90 
+               C56 88 66 82 74 72 
+               C84 59 84 45 76 36 
+               C69 28 54 29 50 35 Z"
             fill="#ffffff"
-            opacity="0.9"
           />
-          
-          {/* Leaf vein line */}
+
+          {/* Heartbeat / Vitality Pulse Line */}
           <path
-            d="M50 35V65"
-            stroke="url(#leafGrad)"
-            strokeWidth="3.5"
+            d="M27 58 L38 58 L43 46 L50 70 L57 51 L62 58 L73 58"
+            stroke="#0284c7"
+            strokeWidth="4.5"
             strokeLinecap="round"
-          />
-          
-          <path
-            d="M50 46C56 42 60 40 60 40"
-            stroke="url(#leafGrad)"
-            strokeWidth="3"
-            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
           />
         </svg>
-        
+
         <div style={{ textAlign: 'left' }}>
           <h1
             style={{
@@ -83,7 +93,7 @@ export function Logo({ size = 'medium', showTagline = false }) {
           </span>
         </div>
       </div>
-      
+
       {showTagline && (
         <p style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '4px' }}>
           Gestão inteligente para nutricionistas
