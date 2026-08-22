@@ -1,206 +1,278 @@
-import React from 'react';
-import { Logo } from '../components/Logo';
-import { LogOut, Users, Calendar, FileText, Activity, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Users, 
+  Calendar, 
+  Clock, 
+  AlertTriangle, 
+  CheckCircle2, 
+  ChevronRight, 
+  RefreshCw, 
+  ArrowUpRight,
+  Sparkles,
+  CalendarDays,
+  UserCheck,
+  Plus
+} from 'lucide-react';
+import { getDashboardData } from '../services/neonDb';
 
-export function Dashboard({ user, onLogout }) {
+export function Dashboard({ user, onNavigateToPacientes, onSelectPaciente, onOpenNovoPaciente }) {
+  const [stats, setStats] = useState({
+    totalPacientes: 0,
+    consultasSemana: 0,
+    pacientesSemRetorno: [],
+    pacientesRecentes: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getDashboardData(user?.id);
+      setStats(data);
+      setLastUpdated(new Date());
+    } catch (err) {
+      console.error('Erro ao carregar dados do dashboard no Neon:', err);
+      setError('Não foi possível sincronizar os dados com o Neon.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, [user?.id]);
+
+  // Formatação amigável da data atual
+  const todayFormatted = new Intl.DateTimeFormat('pt-BR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(new Date());
+
+  const todayCapitalized = todayFormatted.charAt(0).toUpperCase() + todayFormatted.slice(1);
+
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundImage: "url('/bg-dashboard.svg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
-        display: 'flex',
-        flexDirection: 'column'
-      }}
-    >
-      {/* Top Navbar */}
-      <header
-        style={{
-          background: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid #e2e8f0',
-          padding: '16px 32px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          boxShadow: 'var(--shadow-sm)'
-        }}
-      >
-        <Logo size="small" />
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{ textAlign: 'right' }}>
-            <span style={{ display: 'block', fontWeight: 700, color: 'var(--primary-dark)', fontSize: '0.95rem' }}>
-              {user?.nome || 'Nutricionista'}
-            </span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              {user?.email || 'nutri@vivanutri.com'}
-            </span>
+    <div className="dashboard-content">
+      {/* Welcome Banner */}
+      <div className="welcome-banner">
+        <div className="welcome-text-side">
+          <div className="welcome-badge">
+            <Sparkles size={14} />
+            <span>Painel Nutricional em Tempo Real</span>
           </div>
+          <h1 className="welcome-title">
+            Olá, {user?.nome ? user.nome.split(' ')[0] : 'Nutricionista'}! 👋
+          </h1>
+          <p className="welcome-subtitle">
+            {todayCapitalized} • Acompanhe o fluxo de pacientes e consultas em tempo real.
+          </p>
+        </div>
 
-          <button
-            onClick={onLogout}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid #cbd5e1',
-              background: '#ffffff',
-              color: '#475569',
-              fontWeight: 600,
-              fontSize: '0.875rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = '#ef4444';
-              e.currentTarget.style.color = '#ef4444';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = '#cbd5e1';
-              e.currentTarget.style.color = '#475569';
-            }}
+        <div className="welcome-actions-side">
+          <button 
+            onClick={fetchStats} 
+            className="btn-glass"
+            title="Atualizar métricas do Neon"
           >
-            <LogOut size={16} />
-            <span>Sair</span>
+            <RefreshCw size={16} className={loading ? 'spinning-icon' : ''} />
+            <span>{loading ? 'Atualizando...' : 'Atualizar'}</span>
+          </button>
+          <button 
+            onClick={onOpenNovoPaciente} 
+            className="btn-banner-primary"
+          >
+            <Plus size={18} />
+            <span>Novo Paciente</span>
           </button>
         </div>
-      </header>
+      </div>
 
-      {/* Main Content Area */}
-      <main style={{ flex: 1, padding: '40px 32px', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-        {/* Welcome Banner */}
-        <div
-          style={{
-            background: 'linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%)',
-            color: '#ffffff',
-            borderRadius: 'var(--radius-lg)',
-            padding: '32px 40px',
-            marginBottom: '32px',
-            boxShadow: 'var(--shadow-md)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
+      {error && (
+        <div className="alert-error" style={{ marginBottom: '24px' }}>
+          <AlertTriangle size={18} />
+          <span style={{ flex: 1 }}>{error}</span>
+          <button onClick={fetchStats} className="btn-retry">Tentar novamente</button>
+        </div>
+      )}
+
+      {/* 3 Main Metric Cards as requested in Prompt 3 */}
+      <div className="dashboard-cards-grid">
+        
+        {/* CARD 1 — Total de pacientes ativos */}
+        <div 
+          className="metric-card metric-card-blue"
+          onClick={onNavigateToPacientes}
+          role="button"
+          tabIndex={0}
+          title="Clique para ver a lista completa de pacientes"
         >
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '8px' }}>
-              Bem-vinda de volta, {user?.nome?.split(' ')[0] || 'Nutricionista'}! 👋
-            </h2>
-            <p style={{ opacity: 0.9, fontSize: '1rem', maxWidth: '600px' }}>
-              Sua sessão do <strong>Neon Auth</strong> está ativa e com <strong>RLS configurado</strong> no banco PostgreSQL.
+          <div className="metric-header">
+            <div className="metric-icon-box bg-blue-light">
+              <Users size={26} color="var(--primary)" />
+            </div>
+            <span className="metric-tag">Ativos</span>
+          </div>
+          <div className="metric-body">
+            <span className="metric-label">Total de pacientes ativos</span>
+            <div className="metric-value-row">
+              <h2 className="metric-number">
+                {loading ? <span className="skeleton-number">--</span> : stats.totalPacientes}
+              </h2>
+              <span className="metric-action-hint">
+                Ver todos <ArrowUpRight size={14} />
+              </span>
+            </div>
+          </div>
+          <div className="metric-footer">
+            <UserCheck size={14} color="var(--primary)" />
+            <span>Cadastrados no seu perfil</span>
+          </div>
+        </div>
+
+        {/* CARD 2 — Consultas da semana */}
+        <div className="metric-card metric-card-teal">
+          <div className="metric-header">
+            <div className="metric-icon-box bg-teal-light">
+              <CalendarDays size={26} color="var(--accent)" />
+            </div>
+            <span className="metric-tag tag-teal">Semana Atual</span>
+          </div>
+          <div className="metric-body">
+            <span className="metric-label">Consultas da semana</span>
+            <div className="metric-value-row">
+              <h2 className="metric-number">
+                {loading ? <span className="skeleton-number">--</span> : stats.consultasSemana}
+              </h2>
+            </div>
+          </div>
+          <div className="metric-footer">
+            <Clock size={14} color="var(--accent)" />
+            <span>Agendadas / realizadas nesta semana</span>
+          </div>
+        </div>
+
+        {/* Status resumo card auxiliar de status Neon */}
+        <div className="metric-card metric-card-status">
+          <div className="metric-header">
+            <div className="metric-icon-box bg-green-light">
+              <CheckCircle2 size={26} color="var(--success)" />
+            </div>
+            <span className="metric-tag tag-green">Neon PostgreSQL</span>
+          </div>
+          <div className="metric-body">
+            <span className="metric-label">Sincronização Neon</span>
+            <div className="metric-value-row">
+              <h3 className="metric-status-title">100% Conectado</h3>
+            </div>
+          </div>
+          <div className="metric-footer">
+            <div className="status-dot" />
+            <span>
+              {lastUpdated 
+                ? `Última sincronização às ${lastUpdated.toLocaleTimeString('pt-BR')}`
+                : 'Conexão ativa com RLS'}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      {/* CARD 3 — Pacientes sem retorno */}
+      <div className="dashboard-section-container">
+        <div className="section-header">
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h2 className="section-title">Pacientes sem retorno</h2>
+              {stats.pacientesSemRetorno.length > 0 && (
+                <span className="badge-warning-count">
+                  {stats.pacientesSemRetorno.length} pendentes
+                </span>
+              )}
+            </div>
+            <p className="section-subtitle">
+              Pacientes cuja última consulta foi há mais de 30 dias e que não possuem próximo retorno agendado.
             </p>
           </div>
         </div>
 
-        {/* Quick Stats Grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: '20px',
-            marginBottom: '40px'
-          }}
-        >
-          <div style={cardStyle}>
-            <div style={{ ...iconBoxStyle, background: '#e0f2fe', color: '#0284c7' }}>
-              <Users size={24} />
+        <div className="card-sem-retorno-container">
+          {loading ? (
+            <div className="loading-box" style={{ padding: '40px 20px' }}>
+              <div className="spinner" style={{ borderTopColor: 'var(--primary)', width: '32px', height: '32px' }} />
+              <p style={{ marginTop: '12px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                Verificando consultas no banco Neon...
+              </p>
             </div>
-            <div>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Pacientes Ativos</span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>--</h3>
-            </div>
-          </div>
+          ) : stats.pacientesSemRetorno && stats.pacientesSemRetorno.length > 0 ? (
+            <div className="pacientes-sem-retorno-list">
+              {stats.pacientesSemRetorno.map((paciente) => {
+                const ultData = paciente.ultima_consulta 
+                  ? new Date(paciente.ultima_consulta + 'T00:00:00').toLocaleDateString('pt-BR')
+                  : 'Nenhuma consulta registrada';
 
-          <div style={cardStyle}>
-            <div style={{ ...iconBoxStyle, background: '#ccfbf1', color: '#0d9488' }}>
-              <Calendar size={24} />
-            </div>
-            <div>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Consultas do Mês</span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>--</h3>
-            </div>
-          </div>
+                const dias = paciente.dias_sem_consulta || 30;
 
-          <div style={cardStyle}>
-            <div style={{ ...iconBoxStyle, background: '#fef3c7', color: '#d97706' }}>
-              <FileText size={24} />
-            </div>
-            <div>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Planos Criados</span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>--</h3>
-            </div>
-          </div>
+                return (
+                  <div 
+                    key={paciente.id} 
+                    className="paciente-sem-retorno-item"
+                    onClick={() => onSelectPaciente(paciente.id)}
+                    role="button"
+                    tabIndex={0}
+                    title={`Clique para abrir o perfil de ${paciente.nome}`}
+                  >
+                    <div className="paciente-item-left">
+                      <div className="paciente-avatar-letter">
+                        {paciente.nome?.charAt(0).toUpperCase() || 'P'}
+                      </div>
+                      <div className="paciente-info">
+                        <span className="paciente-nome-link">{paciente.nome}</span>
+                        <div className="paciente-meta">
+                          <span className="meta-text">
+                            <strong>Última consulta:</strong> {ultData}
+                          </span>
+                          <span className="meta-divider">•</span>
+                          <span className="meta-dias-alert">
+                            {dias} dias sem retorno
+                          </span>
+                        </div>
+                      </div>
+                    </div>
 
-          <div style={cardStyle}>
-            <div style={{ ...iconBoxStyle, background: '#dcfce7', color: '#16a34a' }}>
-              <ShieldCheck size={24} />
+                    <div className="paciente-item-right">
+                      <button 
+                        className="btn-ver-perfil"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectPaciente(paciente.id);
+                        }}
+                      >
+                        <span>Ver Perfil</span>
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <div>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Neon Auth RLS</span>
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#16a34a', marginTop: '4px' }}>Habilitado</h3>
+          ) : (
+            /* Mensagem obrigatória caso não haja pacientes sem retorno */
+            <div className="sem-retorno-empty-state">
+              <div className="empty-check-icon">
+                <CheckCircle2 size={36} color="var(--success)" />
+              </div>
+              <h3 className="empty-check-title">Nenhum paciente sem retorno no momento</h3>
+              <p className="empty-check-desc">
+                Excelente trabalho! Todos os seus pacientes ativos estão em acompanhamento regular ou com consultas agendadas.
+              </p>
             </div>
-          </div>
+          )}
         </div>
-
-        {/* Empty State Banner */}
-        <div
-          style={{
-            background: '#ffffff',
-            borderRadius: 'var(--radius-lg)',
-            padding: '48px',
-            textAlign: 'center',
-            border: '1px solid #e2e8f0',
-            boxShadow: 'var(--shadow-sm)'
-          }}
-        >
-          <div
-            style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '50%',
-              background: '#f1f5f9',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--text-muted)',
-              marginBottom: '16px'
-            }}
-          >
-            <Activity size={32} />
-          </div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '8px' }}>
-            Pronta para iniciar os atendimentos?
-          </h3>
-          <p style={{ color: 'var(--text-muted)', maxWidth: '480px', margin: '0 auto 24px auto' }}>
-            Autenticação concluída com sucesso! Os próximos módulos permitirão cadastrar pacientes e planejar dietas.
-          </p>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
-
-const cardStyle = {
-  background: '#ffffff',
-  padding: '20px 24px',
-  borderRadius: 'var(--radius-md)',
-  border: '1px solid #e2e8f0',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '16px',
-  boxShadow: 'var(--shadow-sm)'
-};
-
-const iconBoxStyle = {
-  width: '48px',
-  height: '48px',
-  borderRadius: '12px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center'
-};
