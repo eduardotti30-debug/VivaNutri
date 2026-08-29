@@ -4,11 +4,11 @@ import App from './App';
 import './index.css';
 import { registerSW } from 'virtual:pwa-register';
 
-// Registra o Service Worker do PWA com atualização automática em segundo plano
-registerSW({
+const updateSW = registerSW({
   immediate: true,
   onNeedRefresh() {
-    console.log('Nova versão do Viva Nutri disponível.');
+    console.log('Nova versão do Viva Nutri detectada. Atualizando página...');
+    updateSW(true);
   },
   onOfflineReady() {
     console.log('Viva Nutri pronto para funcionar offline.');
