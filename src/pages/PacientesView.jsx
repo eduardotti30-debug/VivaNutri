@@ -1,12 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, UserPlus, Phone, Mail, Calendar, ChevronRight, AlertCircle, RefreshCw } from 'lucide-react';
-import { getPacientes } from '../services/neonDb';
+import { Users, Search, UserPlus, Phone, Mail, Calendar, ChevronRight, AlertCircle, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { getPacientes, createPaciente } from '../services/neonDb';
+import { PacienteForm } from '../components/PacienteForm';
+import { PacientePerfilView } from '../components/PacientePerfilView';
 
-export function PacientesView({ user, onSelectPaciente, onOpenNovoPaciente }) {
+export function PacientesView({ user, initialPacienteId = null, initialView = 'list', onClearInitialSelection }) {
+  const [currentView, setCurrentView] = useState(initialView); // 'list' | 'form' | 'profile'
+  const [selectedPacienteId, setSelectedPacienteId] = useState(initialPacienteId);
+  
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+
+  useEffect(() => {
+    if (initialPacienteId) {
+      setSelectedPacienteId(initialPacienteId);
+      setCurrentView('profile');
+    } else if (initialView) {
+      setCurrentView(initialView);
+    }
+  }, [initialPacienteId, initialView]);
 
   const loadData = async () => {
     try {
@@ -16,7 +32,7 @@ export function PacientesView({ user, onSelectPaciente, onOpenNovoPaciente }) {
       setPacientes(data);
     } catch (err) {
       console.error('Erro ao carregar pacientes:', err);
-      setError('Erro ao conectar ao Neon para listar os pacientes.');
+      setError('Erro ao conectar ao banco Neon para listar os pacientes.');
     } finally {
       setLoading(false);
     }
@@ -26,6 +42,74 @@ export function PacientesView({ user, onSelectPaciente, onOpenNovoPaciente }) {
     loadData();
   }, [user?.id]);
 
+  // Handler para cadastrar novo paciente pelo formulário em 3 abas
+  const handleSaveNovoPaciente = async (formDataPayload) => {
+    try {
+      setSaving(true);
+      setError(null);
+      const payload = {
+        ...formDataPayload,
+        nutricionista_id: user?.id
+      };
+
+      const newPac = await createPaciente(payload);
+
+      setSuccessMessage(`Paciente "${newPac.nome}" cadastrado com sucesso!`);
+      await loadData();
+
+      // Redireciona para o perfil do paciente recém cadastrado
+      setSelectedPacienteId(newPac.id);
+      setCurrentView('profile');
+
+      setTimeout(() => setSuccessMessage(null), 5000);
+    } catch (err) {
+      console.error('Erro ao cadastrar paciente:', err);
+      setError(err.message || 'Erro ao cadastrar paciente no banco de dados Neon.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleOpenProfile = (id) => {
+    setSelectedPacienteId(id);
+    setCurrentView('profile');
+  };
+
+  const handleBackToList = () => {
+    setSelectedPacienteId(null);
+    setCurrentView('list');
+    if (onClearInitialSelection) onClearInitialSelection();
+    loadData();
+  };
+
+  // 1. VIEW: FORMULÁRIO DE CADASTRO
+  if (currentView === 'form') {
+    return (
+      <div className="view-container">
+        <PacienteForm
+          initialData={null}
+          onSave={handleSaveNovoPaciente}
+          onCancel={handleBackToList}
+          loading={saving}
+          error={error}
+        />
+      </div>
+    );
+  }
+
+  // 2. VIEW: PERFIL / PRONTUÁRIO DO PACIENTE
+  if (currentView === 'profile' && selectedPacienteId) {
+    return (
+      <PacientePerfilView
+        pacienteId={selectedPacienteId}
+        nutricionistaId={user?.id}
+        onBack={handleBackToList}
+        onRefreshData={loadData}
+      />
+    );
+  }
+
+  // 3. VIEW: LISTAGEM DE PACIENTES
   const filteredPacientes = pacientes.filter((p) => {
     const term = search.toLowerCase();
     return (
@@ -37,31 +121,43 @@ export function PacientesView({ user, onSelectPaciente, onOpenNovoPaciente }) {
 
   return (
     <div className="view-container">
-      {/* Page Header */}
+      {/* Toast / Mensagem de Sucesso */}
+      {successMessage && (
+        <div className="alert-success" style={{ marginBottom: '20px' }}>
+          <CheckCircle2 size={18} />
+          <span>{successMessage}</span>
+        </div>
+      )}
+
+      {/* Header */}
       <div className="page-header">
         <div>
           <h1 className="page-title">Gestão de Pacientes</h1>
-          <p className="page-subtitle">Consulte prontuários, cadastros e históricos clínicos em tempo real.</p>
+          <p className="page-subtitle">Consulte prontuários, cadastre novos pacientes e edite cadastros.</p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <button onClick={loadData} className="btn-icon-refresh" title="Atualizar dados">
             <RefreshCw size={18} className={loading ? 'spinning-icon' : ''} />
           </button>
-          <button onClick={onOpenNovoPaciente} className="btn-primary" style={{ width: 'auto', padding: '12px 20px' }}>
+          <button
+            onClick={() => setCurrentView('form')}
+            className="btn-primary"
+            style={{ width: 'auto', padding: '12px 20px' }}
+          >
             <UserPlus size={18} />
             <span>Novo Paciente</span>
           </button>
         </div>
       </div>
 
-      {/* Search Bar */}
+      {/* Campo de busca por nome no topo da listagem */}
       <div className="search-card">
         <div className="input-wrapper" style={{ flex: 1 }}>
           <Search size={18} className="input-icon" />
           <input
             type="text"
             className="form-input"
-            placeholder="Buscar por nome, e-mail ou WhatsApp..."
+            placeholder="Buscar paciente por nome..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -79,11 +175,11 @@ export function PacientesView({ user, onSelectPaciente, onOpenNovoPaciente }) {
         </div>
       )}
 
-      {/* List / Table */}
+      {/* Listagem de Pacientes */}
       {loading ? (
         <div className="loading-box">
           <div className="spinner" style={{ borderTopColor: 'var(--primary)', width: '36px', height: '36px' }} />
-          <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>Buscando pacientes no Neon...</p>
+          <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>Carregando pacientes do Neon...</p>
         </div>
       ) : filteredPacientes.length > 0 ? (
         <div className="pacientes-table-container">
@@ -91,22 +187,23 @@ export function PacientesView({ user, onSelectPaciente, onOpenNovoPaciente }) {
             <thead>
               <tr>
                 <th>Paciente</th>
-                <th>Contato</th>
                 <th>Objetivo Principal</th>
                 <th>Última Consulta</th>
-                <th>Status Retorno</th>
                 <th style={{ textAlign: 'right' }}>Ação</th>
               </tr>
             </thead>
             <tbody>
               {filteredPacientes.map((p) => {
-                const hasRetorno = p.proximo_retorno;
                 const ultData = p.ultima_consulta 
                   ? new Date(p.ultima_consulta + 'T00:00:00').toLocaleDateString('pt-BR') 
-                  : 'Nenhuma';
+                  : 'Nenhuma consulta';
+
+                const objText = p.objetivos && p.objetivos.length > 0 
+                  ? p.objetivos[0] 
+                  : (p.objetivo_texto || 'Saúde Geral');
 
                 return (
-                  <tr key={p.id} onClick={() => onSelectPaciente(p.id)} className="table-row-clickable">
+                  <tr key={p.id} onClick={() => handleOpenProfile(p.id)} className="table-row-clickable">
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div className="table-avatar">
@@ -115,29 +212,14 @@ export function PacientesView({ user, onSelectPaciente, onOpenNovoPaciente }) {
                         <div>
                           <span className="table-paciente-nome">{p.nome}</span>
                           <span className="table-paciente-sub">
-                            {p.sexo || 'Não inf.'} {p.data_nascimento ? `• ${new Date().getFullYear() - new Date(p.data_nascimento).getFullYear()} anos` : ''}
+                            {p.sexo || 'Não inf.'} {p.whatsapp ? `• ${p.whatsapp}` : ''}
                           </span>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '0.85rem' }}>
-                        {p.whatsapp && (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--accent)' }}>
-                            <Phone size={12} /> {p.whatsapp}
-                          </span>
-                        )}
-                        {p.email && (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)' }}>
-                            <Mail size={12} /> {p.email}
-                          </span>
-                        )}
-                        {!p.whatsapp && !p.email && <span style={{ color: 'var(--text-muted)' }}>Sem contato</span>}
-                      </div>
-                    </td>
-                    <td>
                       <span className="tag-pill">
-                        {p.objetivos && p.objetivos.length > 0 ? p.objetivos[0] : (p.objetivo_texto || 'Geral')}
+                        {objText}
                       </span>
                     </td>
                     <td>
@@ -145,17 +227,8 @@ export function PacientesView({ user, onSelectPaciente, onOpenNovoPaciente }) {
                         {ultData}
                       </span>
                     </td>
-                    <td>
-                      {hasRetorno ? (
-                        <span className="badge-tag badge-success">
-                          {new Date(p.proximo_retorno + 'T00:00:00').toLocaleDateString('pt-BR')}
-                        </span>
-                      ) : (
-                        <span className="badge-tag badge-warning">Sem retorno</span>
-                      )}
-                    </td>
                     <td style={{ textAlign: 'right' }}>
-                      <button className="btn-table-action" title="Abrir prontuário">
+                      <button className="btn-table-action" title="Abrir perfil do paciente">
                         <span>Ver Perfil</span>
                         <ChevronRight size={16} />
                       </button>
@@ -167,18 +240,25 @@ export function PacientesView({ user, onSelectPaciente, onOpenNovoPaciente }) {
           </table>
         </div>
       ) : (
+        /* Se não houver pacientes cadastrados, exibir a mensagem "Nenhum paciente cadastrado ainda" */
         <div className="empty-state-card">
           <div className="empty-state-icon">
             <Users size={32} />
           </div>
-          <h3>{search ? 'Nenhum paciente encontrado' : 'Nenhum paciente cadastrado'}</h3>
+          <h3>
+            {search ? 'Nenhum paciente encontrado com essa busca' : 'Nenhum paciente cadastrado ainda'}
+          </h3>
           <p>
             {search 
-              ? 'Tente buscar com outro nome ou termo.' 
-              : 'Cadastre o seu primeiro paciente para começar a gerenciar consultas e planos.'}
+              ? 'Tente ajustar os termos de busca para encontrar o paciente.' 
+              : 'Clique no botão abaixo para realizar o seu primeiro cadastro de paciente.'}
           </p>
           {!search && (
-            <button onClick={onOpenNovoPaciente} className="btn-primary" style={{ width: 'auto', padding: '12px 24px', margin: '0 auto' }}>
+            <button
+              onClick={() => setCurrentView('form')}
+              className="btn-primary"
+              style={{ width: 'auto', padding: '12px 24px', margin: '0 auto' }}
+            >
               <UserPlus size={18} />
               <span>Cadastrar Primeiro Paciente</span>
             </button>

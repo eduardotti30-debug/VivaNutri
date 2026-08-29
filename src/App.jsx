@@ -5,8 +5,6 @@ import { ForgotPassword } from './pages/ForgotPassword';
 import { Dashboard } from './pages/Dashboard';
 import { PacientesView } from './pages/PacientesView';
 import { Sidebar } from './components/Sidebar';
-import { PacienteDetailModal } from './components/PacienteDetailModal';
-import { NovoPacienteModal } from './components/NovoPacienteModal';
 import { getCurrentSession, logoutNutricionista } from './services/neonAuth';
 
 export function App() {
@@ -15,9 +13,9 @@ export function App() {
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'pacientes'
   const [loading, setLoading] = useState(true);
 
-  // Modais
-  const [selectedPacienteId, setSelectedPacienteId] = useState(null);
-  const [isNovoPacienteOpen, setIsNovoPacienteOpen] = useState(false);
+  // Sub-roteamento para a aba de Pacientes
+  const [targetPacienteId, setTargetPacienteId] = useState(null);
+  const [targetPacienteView, setTargetPacienteView] = useState('list'); // 'list' | 'form' | 'profile'
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -46,11 +44,15 @@ export function App() {
   };
 
   const handleOpenPacienteProfile = (pacienteId) => {
-    setSelectedPacienteId(pacienteId);
+    setTargetPacienteId(pacienteId);
+    setTargetPacienteView('profile');
+    setActiveTab('pacientes');
   };
 
-  const handlePacienteCreated = () => {
-    setRefreshKey((prev) => prev + 1);
+  const handleOpenNovoPaciente = () => {
+    setTargetPacienteId(null);
+    setTargetPacienteView('form');
+    setActiveTab('pacientes');
   };
 
   if (loading) {
@@ -68,7 +70,13 @@ export function App() {
         {/* Menu Lateral Fixo com logo Viva Nutri no topo */}
         <Sidebar
           currentTab={activeTab}
-          onSelectTab={setActiveTab}
+          onSelectTab={(tab) => {
+            if (tab === 'pacientes') {
+              setTargetPacienteId(null);
+              setTargetPacienteView('list');
+            }
+            setActiveTab(tab);
+          }}
           user={session.user}
           onLogout={handleLogout}
         />
@@ -79,38 +87,27 @@ export function App() {
             <Dashboard
               key={`dashboard-${refreshKey}`}
               user={session.user}
-              onNavigateToPacientes={() => setActiveTab('pacientes')}
+              onNavigateToPacientes={() => {
+                setTargetPacienteId(null);
+                setTargetPacienteView('list');
+                setActiveTab('pacientes');
+              }}
               onSelectPaciente={handleOpenPacienteProfile}
-              onOpenNovoPaciente={() => setIsNovoPacienteOpen(true)}
+              onOpenNovoPaciente={handleOpenNovoPaciente}
             />
           ) : (
             <PacientesView
               key={`pacientes-${refreshKey}`}
               user={session.user}
-              onSelectPaciente={handleOpenPacienteProfile}
-              onOpenNovoPaciente={() => setIsNovoPacienteOpen(true)}
+              initialPacienteId={targetPacienteId}
+              initialView={targetPacienteView}
+              onClearInitialSelection={() => {
+                setTargetPacienteId(null);
+                setTargetPacienteView('list');
+              }}
             />
           )}
         </main>
-
-        {/* Modal de Detalhes / Perfil do Paciente */}
-        {selectedPacienteId && (
-          <PacienteDetailModal
-            pacienteId={selectedPacienteId}
-            nutricionistaId={session.user?.id}
-            onClose={() => setSelectedPacienteId(null)}
-            onRefreshData={handlePacienteCreated}
-          />
-        )}
-
-        {/* Modal para Cadastro de Novo Paciente */}
-        {isNovoPacienteOpen && (
-          <NovoPacienteModal
-            nutricionistaId={session.user?.id}
-            onClose={() => setIsNovoPacienteOpen(false)}
-            onSuccess={handlePacienteCreated}
-          />
-        )}
       </div>
     );
   }

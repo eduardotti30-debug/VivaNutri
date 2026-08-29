@@ -180,10 +180,12 @@ export async function createPaciente(pacienteData) {
       nome,
       data_nascimento,
       sexo,
+      telefone,
       whatsapp,
       email,
       peso_inicial,
       altura,
+      imc,
       objetivos,
       objetivo_texto,
       nivel_atividade,
@@ -203,21 +205,21 @@ export async function createPaciente(pacienteData) {
 
     const res = await sql.query(
       `INSERT INTO pacientes (
-         nutricionista_id, nome, data_nascimento, sexo, whatsapp, email,
-         peso_inicial, altura, objetivos, objetivo_texto, nivel_atividade,
+         nutricionista_id, nome, data_nascimento, sexo, telefone, whatsapp, email,
+         peso_inicial, altura, imc, objetivos, objetivo_texto, nivel_atividade,
          patologias, restricoes_alimentares, alergias, medicamentos,
          suplementos, refeicoes_por_dia, horario_acorda, horario_dorme,
          litros_agua, atividade_fisica, atividade_fisica_descricao, observacoes
        ) VALUES (
-         $1, $2, $3, $4, $5, $6,
-         $7, $8, $9, $10, $11,
-         $12, $13, $14, $15,
-         $16, $17, $18, $19,
-         $20, $21, $22, $23
+         $1, $2, $3, $4, $5, $6, $7,
+         $8, $9, $10, $11, $12, $13,
+         $14, $15, $16, $17,
+         $18, $19, $20, $21,
+         $22, $23, $24, $25
        ) RETURNING *`,
       [
-        nutricionista_id, nome, data_nascimento || null, sexo || null, whatsapp || null, email || null,
-        peso_inicial || null, altura || null, objetivos || [], objetivo_texto || null, nivel_atividade || null,
+        nutricionista_id, nome, data_nascimento || null, sexo || null, telefone || null, whatsapp || null, email || null,
+        peso_inicial || null, altura || null, imc || null, objetivos || [], objetivo_texto || null, nivel_atividade || null,
         patologias || [], restricoes_alimentares || [], alergias || [], medicamentos || null,
         suplementos || null, refeicoes_por_dia || null, horario_acorda || null, horario_dorme || null,
         litros_agua || null, atividade_fisica ?? false, atividade_fisica_descricao || null, observacoes || null
@@ -230,3 +232,97 @@ export async function createPaciente(pacienteData) {
     throw error;
   }
 }
+
+/**
+  Atualiza os dados de um paciente existente no Neon
+ */
+export async function updatePaciente(pacienteId, nutricionistaId, pacienteData) {
+  try {
+    const {
+      nome,
+      data_nascimento,
+      sexo,
+      telefone,
+      whatsapp,
+      email,
+      peso_inicial,
+      altura,
+      imc,
+      objetivos,
+      objetivo_texto,
+      nivel_atividade,
+      patologias,
+      restricoes_alimentares,
+      alergias,
+      medicamentos,
+      suplementos,
+      refeicoes_por_dia,
+      horario_acorda,
+      horario_dorme,
+      litros_agua,
+      atividade_fisica,
+      atividade_fisica_descricao,
+      observacoes
+    } = pacienteData;
+
+    const res = await sql.query(
+      `UPDATE pacientes SET
+         nome = $1,
+         data_nascimento = $2,
+         sexo = $3,
+         telefone = $4,
+         whatsapp = $5,
+         email = $6,
+         peso_inicial = $7,
+         altura = $8,
+         imc = $9,
+         objetivos = $10,
+         objetivo_texto = $11,
+         nivel_atividade = $12,
+         patologias = $13,
+         restricoes_alimentares = $14,
+         alergias = $15,
+         medicamentos = $16,
+         suplementos = $17,
+         refeicoes_por_dia = $18,
+         horario_acorda = $19,
+         horario_dorme = $20,
+         litros_agua = $21,
+         atividade_fisica = $22,
+         atividade_fisica_descricao = $23,
+         observacoes = $24
+       WHERE id = $25 AND nutricionista_id = $26
+       RETURNING *`,
+      [
+        nome, data_nascimento || null, sexo || null, telefone || null, whatsapp || null, email || null,
+        peso_inicial || null, altura || null, imc || null, objetivos || [], objetivo_texto || null, nivel_atividade || null,
+        patologias || [], restricoes_alimentares || [], alergias || [], medicamentos || null,
+        suplementos || null, refeicoes_por_dia || null, horario_acorda || null, horario_dorme || null,
+        litros_agua || null, atividade_fisica ?? false, atividade_fisica_descricao || null, observacoes || null,
+        pacienteId, nutricionistaId
+      ]
+    );
+
+    return res[0];
+  } catch (error) {
+    console.error('Erro ao atualizar paciente no Neon:', error);
+    throw error;
+  }
+}
+
+/**
+  Deleta um paciente no Neon
+ */
+export async function deletePaciente(pacienteId, nutricionistaId) {
+  try {
+    await sql.query(
+      'DELETE FROM pacientes WHERE id = $1 AND nutricionista_id = $2',
+      [pacienteId, nutricionistaId]
+    );
+    return true;
+  } catch (error) {
+    console.error('Erro ao deletar paciente no Neon:', error);
+    throw error;
+  }
+}
+
