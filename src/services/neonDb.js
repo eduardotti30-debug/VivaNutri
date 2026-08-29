@@ -326,3 +326,45 @@ export async function deletePaciente(pacienteId, nutricionistaId) {
   }
 }
 
+/**
+ * Cadastra uma nova consulta no Neon
+ */
+export async function createConsulta(consultaData) {
+  try {
+    const {
+      paciente_id,
+      data_consulta,
+      peso,
+      cintura,
+      quadril,
+      percentual_gordura,
+      observacoes,
+      proximo_retorno
+    } = consultaData;
+
+    const res = await sql.query(
+      `INSERT INTO consultas (
+         paciente_id, data_consulta, peso, cintura, quadril, percentual_gordura, observacoes, proximo_retorno
+       ) VALUES (
+         $1, $2, $3, $4, $5, $6, $7, $8
+       ) RETURNING *`,
+      [
+        paciente_id,
+        data_consulta,
+        peso || null,
+        cintura || null,
+        quadril || null,
+        percentual_gordura || null,
+        observacoes || null,
+        proximo_retorno || null
+      ]
+    );
+
+    return res[0];
+  } catch (error) {
+    console.error('Erro ao cadastrar consulta no Neon:', error);
+    throw error;
+  }
+}
+
+
