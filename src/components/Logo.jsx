@@ -13,16 +13,16 @@ export function Logo({ size = 'medium', showTagline = false }) {
           viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          style={{ filter: 'drop-shadow(0px 6px 14px rgba(249, 115, 22, 0.25))' }}
+          style={{ filter: 'drop-shadow(0px 6px 14px rgba(2, 132, 199, 0.25))' }}
         >
           <defs>
             <linearGradient id="vivaBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#f97316" />
-              <stop offset="100%" stopColor="#16a34a" />
+              <stop offset="0%" stopColor="#38bdf8" />
+              <stop offset="100%" stopColor="#0284c7" />
             </linearGradient>
             <linearGradient id="vivaLeafGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#4ade80" />
-              <stop offset="100%" stopColor="#16a34a" />
+              <stop offset="0%" stopColor="#bae6fd" />
+              <stop offset="100%" stopColor="#ffffff" />
             </linearGradient>
           </defs>
 
@@ -57,7 +57,7 @@ export function Logo({ size = 'medium', showTagline = false }) {
           {/* Heartbeat / Vitality Pulse Line */}
           <path
             d="M27 58 L38 58 L43 46 L50 70 L57 51 L62 58 L73 58"
-            stroke="#ea580c"
+            stroke="#0284c7"
             strokeWidth="4.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -71,7 +71,7 @@ export function Logo({ size = 'medium', showTagline = false }) {
               fontSize: isLarge ? '2.2rem' : '1.75rem',
               fontWeight: 900,
               letterSpacing: '-0.02em',
-              background: 'linear-gradient(135deg, #ea580c 0%, #f97316 45%, #16a34a 100%)',
+              background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 60%, #0ea5e9 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               lineHeight: 1.1
@@ -85,7 +85,7 @@ export function Logo({ size = 'medium', showTagline = false }) {
               fontWeight: 800,
               textTransform: 'uppercase',
               letterSpacing: '0.14em',
-              color: '#16a34a',
+              color: '#0284c7',
               display: 'block',
               marginTop: '2px'
             }}

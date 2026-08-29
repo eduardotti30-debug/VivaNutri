@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Login } from './pages/Login';
+
 import { Register } from './pages/Register';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { Dashboard } from './pages/Dashboard';
@@ -130,6 +131,7 @@ export function App() {
     );
   }
 
+  // Default login view (both patient and nutritionist)
   return (
     <Login
       onSwitchToRegister={() => setAuthView('register')}

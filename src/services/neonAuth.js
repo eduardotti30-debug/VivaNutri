@@ -72,7 +72,8 @@ export async function loginNutricionista({ email, password }) {
     const userData = {
       id: data.user?.id,
       nome: data.user?.name || 'Nutricionista',
-      email: data.user?.email || email
+      email: data.user?.email || email,
+      role: 'nutricionista'
     };
 
     localStorage.setItem('viva_nutri_session', JSON.stringify({
@@ -86,6 +87,49 @@ export async function loginNutricionista({ email, password }) {
     throw err;
   }
 }
+
+// New function for patient login (same endpoint but role differs)
+export async function loginPaciente({ email, password }) {
+  try {
+    const res = await fetch(`${NEON_AUTH_URL}/sign-in/email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 400) {
+        throw new Error('E-mail ou senha incorretos. Por favor, verifique suas credenciais.');
+      }
+      throw new Error(data?.message || 'Falha ao autenticar. Tente novamente mais tarde.');
+    }
+
+    const userData = {
+      id: data.user?.id,
+      nome: data.user?.name || 'Paciente',
+      email: data.user?.email || email,
+      role: 'paciente'
+    };
+
+    localStorage.setItem('viva_nutri_session', JSON.stringify({
+      token: data.token || 'auth_session_active',
+      user: userData
+    }));
+
+    return { success: true, user: userData };
+  } catch (err) {
+    console.error('Erro no login de paciente via Neon Auth:', err);
+    throw err;
+  }
+}
+
 
 /**
  * Retorna a sessão do usuário armazenada localmente

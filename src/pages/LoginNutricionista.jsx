@@ -1,30 +1,25 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, ArrowRight } from 'lucide-react';
 import { Logo } from '../components/Logo';
-import { loginNutricionista, loginPaciente } from '../services/neonAuth';
+import { loginNutricionista } from '../services/neonAuth';
 
-export function Login({ onSwitchToRegister, onSwitchToForgotPassword, onLoginSuccess }) {
+export function LoginNutricionista({ onSwitchToRegister, onSwitchToForgotPassword, onLoginSuccess, onSwitchToPaciente }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [role, setRole] = useState('paciente'); // 'paciente' or 'nutricionista'
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     if (!email || !password) {
       setError('Por favor, preencha todos os campos.');
       return;
     }
-
     setLoading(true);
-
     try {
-      const loginFn = role === 'nutricionista' ? loginNutricionista : loginPaciente;
-      const result = await loginFn({ email, password });
+      const result = await loginNutricionista({ email, password });
       if (result.success) {
         onLoginSuccess(result.user);
       }
@@ -40,69 +35,18 @@ export function Login({ onSwitchToRegister, onSwitchToForgotPassword, onLoginSuc
       <div className="auth-card">
         <div className="auth-header">
           <Logo size="large" />
-          <h2 className="auth-title">Acessar Conta</h2>
-          <p className="auth-subtitle">Digite seu e-mail e senha para entrar no sistema</p>
+          <h2 className="auth-title">Acesso Nutricionista</h2>
+          <p className="auth-subtitle">Entre com seu e‑mail e senha para acessar o painel de nutrição.</p>
         </div>
-
-        {/* Role selector */}
-        <div style={{
-          display: 'flex',
-          background: '#f1f5f9',
-          borderRadius: 'var(--radius-md)',
-          padding: '4px',
-          marginBottom: '20px',
-          gap: '4px'
-        }}>
-          <button
-            type="button"
-            onClick={() => setRole('paciente')}
-            style={{
-              flex: 1,
-              padding: '10px 14px',
-              borderRadius: 'var(--radius-sm)',
-              border: 'none',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              background: role === 'paciente' ? '#ffffff' : 'transparent',
-              color: role === 'paciente' ? 'var(--primary)' : 'var(--text-muted)',
-              boxShadow: role === 'paciente' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none'
-            }}
-          >
-            Paciente
-          </button>
-          <button
-            type="button"
-            onClick={() => setRole('nutricionista')}
-            style={{
-              flex: 1,
-              padding: '10px 14px',
-              borderRadius: 'var(--radius-sm)',
-              border: 'none',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              background: role === 'nutricionista' ? '#ffffff' : 'transparent',
-              color: role === 'nutricionista' ? 'var(--primary)' : 'var(--text-muted)',
-              boxShadow: role === 'nutricionista' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none'
-            }}
-          >
-            Nutricionista
-          </button>
-        </div>
-
         {error && (
           <div className="alert-error">
             <AlertCircle size={18} />
             <span>{error}</span>
           </div>
         )}
-
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">E-mail</label>
+            <label className="form-label">E‑mail</label>
             <div className="input-wrapper">
               <Mail className="input-icon" size={18} />
               <input
@@ -115,17 +59,10 @@ export function Login({ onSwitchToRegister, onSwitchToForgotPassword, onLoginSuc
               />
             </div>
           </div>
-
           <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <label className="form-label" style={{ marginBottom: 0 }}>Senha</label>
-              <span
-                className="auth-link"
-                onClick={onSwitchToForgotPassword}
-                style={{ fontSize: '0.8rem', fontWeight: 600 }}
-              >
-                Esqueceu a senha?
-              </span>
+              <span className="auth-link" onClick={onSwitchToForgotPassword} style={{ fontSize: '0.8rem', fontWeight: 600 }}>Esqueceu a senha?</span>
             </div>
             <div className="input-wrapper">
               <Lock className="input-icon" size={18} />
@@ -147,7 +84,6 @@ export function Login({ onSwitchToRegister, onSwitchToForgotPassword, onLoginSuc
               </button>
             </div>
           </div>
-
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? (
               <>
@@ -162,12 +98,10 @@ export function Login({ onSwitchToRegister, onSwitchToForgotPassword, onLoginSuc
             )}
           </button>
         </form>
-
         <div className="auth-footer">
           <span>Não tem conta?</span>
-          <span className="auth-link" onClick={onSwitchToRegister}>
-            Cadastre-se
-          </span>
+          <span className="auth-link" onClick={onSwitchToRegister}>Cadastre-se</span>
+          <span className="auth-link" onClick={onSwitchToPaciente} style={{ marginLeft: '12px' }}>Login Paciente</span>
         </div>
       </div>
     </div>
