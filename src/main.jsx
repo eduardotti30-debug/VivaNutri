@@ -4,6 +4,15 @@ import App from './App';
 import './index.css';
 import { registerSW } from 'virtual:pwa-register';
 
+// Garante limpeza de caches antigos no navegador
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      registration.update();
+    }
+  });
+}
+
 const updateSW = registerSW({
   immediate: true,
   onNeedRefresh() {
